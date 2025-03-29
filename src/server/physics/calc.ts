@@ -47,7 +47,14 @@ export class vec2{
         this.y = y;
         return this;
     }
-    
+    invert():vec2{
+        this.x *= -1;
+        this.y *= -1;
+        return this;
+    }
+    inverse():vec2{
+        return new vec2(-this.x, -this.y);
+    }
     static plus(a: vec2, b: vec2): vec2{
         return new vec2(a.x + b.x, a.y + b.y);
     }
@@ -75,7 +82,12 @@ export class vec2{
         let y = v.y * r.cos + v.x * r.sin;
         return new vec2(x, y);
     }
-
+    static worldToLocalSpace(v: vec2, localOrigin: vec2, localRotation: Rotation){
+        return vec2.minus(v, localOrigin).rotateBy(localRotation.inverse());
+    }
+    static localToWorldSpace(v: vec2, localOrigin: vec2, localRotation: Rotation){
+        return vec2.rotatedBy(v, localRotation).add(localOrigin);
+    }
 
     static readonly ihat = new vec2(1,0);
     static readonly jhat = new vec2(0,1);

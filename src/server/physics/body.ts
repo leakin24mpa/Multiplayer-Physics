@@ -1,7 +1,7 @@
 import { Rotation, vec2 } from "./calc.js";
 import { Shape } from "./geometry.js";
 
-export class MaterialData{
+export class Material{
     bounciness: number; 
     friction: number;
     staticFriction: number;
@@ -13,7 +13,7 @@ export class MaterialData{
         this.staticFriction = staticFriction;
         this.density = density;
     }
-    static default = new MaterialData(0.2, 0.3, 0.4, 1);
+    static default = new Material(0.2, 0.3, 0.4, 1);
 }
 export interface GameObject{
     isCollection: boolean;
@@ -56,6 +56,16 @@ export class Collection implements GameObject{
         return objects;
     }
 }
+interface PhysicsObjectOptions{
+    velocity?: vec2;
+    angularVelocity?: Rotation;
+    bounciness?: number;
+    staticFriction?: number;
+    friction?: number;
+    density?: number;
+    material?: Material;
+
+}
 export class PhysicsObject implements GameObject{
     getAllObjects() {
         return null;
@@ -67,8 +77,8 @@ export class PhysicsObject implements GameObject{
     lastPosition: vec2;
     lastAngle: Rotation;
 
-    acceleration: vec2;
-    angularAccerleration: Rotation;
+    acceleration: vec2 = new vec2(0,0);
+    angularAccerleration: Rotation = new Rotation(0);
 
     mass: number;
     inverseMass: number;
@@ -76,10 +86,75 @@ export class PhysicsObject implements GameObject{
     inertia: number;
     inverseInertia: number;
 
-    materialData: MaterialData;
+    material: Material;
 
     colliders: Shape[];
+    constructor(position: vec2, angle: Rotation, colliders: Shape[], options?: PhysicsObjectOptions){
+        this.position  = position;
+        this.angle = angle;
 
+        this.lastPosition = position;
+        this.lastAngle = angle;
+
+        this.colliders = colliders;
+        if(options){
+            if(options.velocity){
+                this.lastPosition.subtract(options.velocity);
+            }
+            if(options.angularVelocity){
+                this.lastAngle.subtract(options.angularVelocity);
+            }
+            if(options.material){
+                this.material = options.material;
+            }
+            else{
+                this.material = Material.default;
+            }
+            if(options.bounciness){
+                this.material.bounciness = options.bounciness;
+            }
+            if(options.density){
+                this.material.density = options.density;
+            }
+            if(options.staticFriction){
+                this.material.staticFriction = options.staticFriction;
+            }
+            if(options.friction){
+                this.material.friction = options.friction;
+            }
+        }
+        else{
+            this.material = Material.default;
+        }
+        this.calculateProperties();
+    }
+    private calculateProperties(){
+        let COM = new vec2(0,0);
+        let totalArea = 0;
+        for(let i = 0; i < this.colliders.length; i++){
+            totalArea += this.colliders[i].area;
+            COM.add(vec2.times(this.colliders[i].COM, this.colliders[i].area));
+        }
+        COM.divideBy(totalArea);
+        console.log(COM);
+        this.mass = totalArea * this.material.density;
+
+        let inertia = 0;
+        for(let i = 0; i < this.colliders.length; i++){
+            this.colliders[i].translate(COM.inverse());
+            inertia += this.colliders[i].inertia;
+        }
+        this.inertia = inertia * this.material.density;
+
+        this.inverseMass = 1/this.mass;
+        this.inverseInertia = 1/this.inertia;
+    }
+    worldToLocalSpace(v: vec2): vec2{
+        return vec2.worldToLocalSpace(v, this.position, this.angle);
+    }
+    localToWorldSpace(v: vec2): vec2{
+        return vec2.localToWorldSpace(v, this.position, this.angle);
+    }
     applyForce(force: vec2, location: vec2){
         this.acceleration.add(vec2.times(force, this.inverseMass));
         this.angularAccerleration.add(new Rotation(vec2.cross(location, force) * this.inverseInertia));

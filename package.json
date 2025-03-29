@@ -4,6 +4,7 @@
   "description": "idk",
   "main": "server.js",
   "scripts": {
+    "test" : "npx tsx src/server/test.ts",
     "start": "node dist/server.js",
     "build": "tsc"
   },

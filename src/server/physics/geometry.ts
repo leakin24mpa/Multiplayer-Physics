@@ -5,22 +5,22 @@ export class Vertex{
     normal: vec2;
     isInternal: boolean;
 }
-export interface Shape{
-    isCircle: boolean;
-    area: number;
-    inertia: number;
-    COM: vec2;
+export enum ShapeType{
+    POLYGON,
+    CIRCLE
 }
-export class Polygon implements Shape{
-    isCircle = false;
+export type Shape = Polygon | Circle;
+
+
+export class Polygon{
+    type = ShapeType.POLYGON;
     area: number;
     inertia: number;
     COM: vec2;
-
     vertices: Vertex[];
-    constructor(points: vec2[]){
+    constructor(points: vec2[], internalEdges?: boolean[]){
         let totalArea = 0;
-        let COM = vec2.zero;
+        this.COM = new vec2(0,0);
         let lastPoint = points[points.length - 1];
         this.vertices = [];
         this.inertia = 0;
@@ -30,22 +30,51 @@ export class Polygon implements Shape{
             this.inertia += (lastPoint.magSqr() + vec2.dot(lastPoint, points[i]) + points[i].magSqr()) * triArea;
 
             totalArea += triArea;
-            COM.add(triCom);
+            this.COM.add(triCom);
 
             this.vertices.push(
                 {position: points[i], 
                  normal: vec2.minus(points[i], lastPoint).normalize().rotateBy(Rotation.cw90deg), 
-                 isInternal: false});
+                 isInternal: internalEdges? internalEdges[i]: false});
             lastPoint = points[i];
         }
-        COM.divideBy(totalArea * 3);
+        this.COM.divideBy(totalArea * 3);
         this.inertia /= 6;
         this.area = totalArea;
-        this.COM = COM;
+    }
+    translate(t: vec2){
+        for(let i = 0; i < this.vertices.length; i++){
+            this.vertices[i].position.add(t);
+        }
+        this.inertia -= this.COM.magSqr() * this.area;
+        this.COM.add(t);
+        this.inertia += this.COM.magSqr() * this.area;
+
+    }
+    static rectangle(position: vec2, width: number , height: number){
+        let x = position.x;
+        let y = position.y;
+        let hw = width / 2;
+        let hh = height / 2;
+        return new Polygon(
+            [new vec2(x - hw, y - hh),
+             new vec2(x + hw, y - hh),
+             new vec2(x + hw, y + hh),
+             new vec2(x - hw, y + hh)]);
+    }
+    static regularPolygon(position: vec2, radius: number, sides: number){
+        let points = [];
+        let rot = new Rotation(2 * Math.PI / sides)
+        let vertex = vec2.rotatedBy(new vec2(0, -radius), Rotation.times(rot, 0.5));
+        for(let i = 0; i < sides; i++){
+            points.push(vec2.plus(vertex, position));
+            vertex.rotateBy(rot);
+        }
+        return new Polygon(points);
     }
 }
-export class Circle implements Shape{
-    isCircle = true;
+export class Circle{
+    type = ShapeType.CIRCLE;
     area: number;
     inertia: number;
     COM: vec2;
@@ -56,5 +85,11 @@ export class Circle implements Shape{
         this.inertia = this.area * radius * radius + 0.5 * position.magSqr() * this.area;
         this.COM = position;
         this.radius = radius;
+    }
+    translate(t: vec2){
+        this.inertia -= this.COM.magSqr() * this.area;
+        this.COM.add(t);
+        this.inertia += this.COM.magSqr() * this.area;
+
     }
 }
