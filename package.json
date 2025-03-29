@@ -1,23 +1,23 @@
 {
-  "name": "server_0e7",
+  "name": "multiplayer-physics",
   "version": "1.0.0",
   "description": "idk",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "start": "node dist/server/src/server.js",
+    "build": "tsc"
   },
   "keywords": [
     "multiplayer",
     "node",
-    "sockets"
+    "sockets",
+    "physics"
   ],
   "type": "module",
   "author": "0e7",
   "license": "ISC",
   "dependencies": {
     "express": "^4.17.2",
-    "matter-js": "^0.20.0",
     "socket.io": "^4.4.1"
   }
 }

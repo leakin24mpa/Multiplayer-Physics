@@ -94,13 +94,16 @@ export class Rotation{
         this.angle = this.angle + other.angle;
         this.cos = this.cos * other.cos - this.sin * other.sin;
         this.sin = this.sin * other.cos + this.cos * other.sin;
+        return this;
     }
     subtract(other: Rotation){
         this.add(other.inverse());
+        return this;
     }
     invert(){
         this.angle = -this.angle;
         this.sin = -this.sin;
+        return this;
     }
     inverse(): Rotation{
         return {cos: this.cos, sin: -this.sin, angle: -this.angle} as Rotation;
@@ -119,6 +122,9 @@ export class Rotation{
     }
     static minus(a: Rotation, b: Rotation): Rotation{
         return Rotation.plus(a,b.inverse());
+    }
+    static times(r: Rotation, n: number){
+        return new Rotation(r.angle * n);
     }
     static fromDegrees(d: number): Rotation{
         return new Rotation(d * Math.PI / 180);

@@ -23,7 +23,7 @@ let users = [];
 
 
 
-app.use(express.static('client'));
+app.use(express.static('../client'));
 
 
 console.log('\n\n\n >> Server Started');
@@ -47,7 +47,7 @@ for ( const name of Object.keys(networks)){
         }
     }
 }
-console.log(`\n\n\n >> connect to the server using ip address ${results.en0}:${3000}`);
+//console.log(`\n\n\n >> connect to the server using ip address ${results.en0}:${3000}`);
 
 
 let io = new socket(server);

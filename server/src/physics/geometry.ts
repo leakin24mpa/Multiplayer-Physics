@@ -1,4 +1,4 @@
-import { Rotation, vec2 } from "./calc";
+import { Rotation, vec2 } from "./calc.js";
 
 export class Vertex{
     position: vec2;

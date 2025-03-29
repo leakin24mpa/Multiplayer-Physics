@@ -1,5 +1,5 @@
-import { Rotation, vec2 } from "./physics/calc";
-import { Polygon } from "./physics/geometry";
+import { Rotation, vec2 } from "./physics/calc.js";
+import { Polygon } from "./physics/geometry.js";
 
 function vec2string(v: vec2): string{
     return "(" + v.x +", " + v.y + ")";

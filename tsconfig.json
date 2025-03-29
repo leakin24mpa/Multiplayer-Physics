@@ -1,0 +1,14 @@
+{
+    "compilerOptions": {
+      "outDir": "./dist",
+      "allowJs": true,
+      "target": "es6",
+      "moduleResolution": "NodeNext",
+      "module": "NodeNext"
+
+    },
+    "include": ["./server/src/**/*"],
+    "exclude": ["node_modules"],
+    
+
+  }
