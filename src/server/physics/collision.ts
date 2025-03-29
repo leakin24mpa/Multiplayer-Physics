@@ -14,13 +14,13 @@ export interface Contact{
     contactPoints: vec2[];
 }
 
-interface SATresult{
+export interface SATresult{
     axis: vec2;
     depth: number;
     Aindex: number;
     Bindex: number;
 }
-function SAT(shapeA: Polygon, shapeB: Polygon, objectA: PhysicsObject, objectB: PhysicsObject): SATresult | false{
+export function SAT(shapeA: Polygon, shapeB: Polygon, objectA: PhysicsObject, objectB: PhysicsObject): SATresult | false{
     let bestResult: SATresult = {axis: new vec2(0,0), depth: Infinity, Aindex: 0, Bindex: 0}
 
     for(let axis = 0; axis < shapeB.vertices.length; axis++){

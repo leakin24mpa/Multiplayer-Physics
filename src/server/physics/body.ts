@@ -161,5 +161,5 @@ export class PhysicsObject implements GameObject{
     }
  
 
-
+    static readonly empty = new PhysicsObject(vec2.zero, Rotation.zero, [], {density: Infinity});
 }

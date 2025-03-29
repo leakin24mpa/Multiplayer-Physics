@@ -1,5 +1,6 @@
 import { PhysicsObject } from "./physics/body.js";
 import { Rotation, vec2 } from "./physics/calc.js";
+import { SAT } from "./physics/collision.js";
 import { Circle, Polygon, Shape, ShapeType } from "./physics/geometry.js";
 
 function formatNumber(n: number){
@@ -43,22 +44,22 @@ function logBody(b: PhysicsObject ){
         logShape(b.colliders[i]);
     }
 }
-let rect2 = Polygon.rectangle(new vec2(3,0), 2, 2);
+let rect2 = Polygon.rectangle(new vec2(2,1), 2, 2);
 console.log(rect2);
 
 let rect = Polygon.rectangle(new vec2(1,0), 2, 2);
-logShape(rect);
+//logShape(rect);
 
 
-logShape(rect2);
+//logShape(rect2);
 
 
 
-let b1 = new PhysicsObject(vec2.zero, Rotation.zero, [rect, rect2]);
-logBody(b1);
+//let b1 = new PhysicsObject(vec2.zero, Rotation.zero, [rect, rect2]);
+//logBody(b1);
 
-
-console.log(b1);
+console.log(SAT(rect2, rect, PhysicsObject.empty, PhysicsObject.empty));
+//console.log(b1);
 
 
 

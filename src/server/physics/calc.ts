@@ -82,10 +82,10 @@ export class vec2{
         let y = v.y * r.cos + v.x * r.sin;
         return new vec2(x, y);
     }
-    static worldToLocalSpace(v: vec2, localOrigin: vec2, localRotation: Rotation){
-        return vec2.minus(v, localOrigin).rotateBy(localRotation.inverse());
+    static worldToLocalSpace(v: vec2, localOrigin: vec2, localRotation: Rotation): vec2{
+        return vec2.minus(v, localOrigin).rotateBy(Rotation.inverse(localRotation));
     }
-    static localToWorldSpace(v: vec2, localOrigin: vec2, localRotation: Rotation){
+    static localToWorldSpace(v: vec2, localOrigin: vec2, localRotation: Rotation): vec2{
         return vec2.rotatedBy(v, localRotation).add(localOrigin);
     }
 
@@ -131,6 +131,9 @@ export class Rotation{
         let cos = a.cos * b.cos - a.sin * b.sin;
         let sin = a.sin * b.cos + a.cos * b.sin;
         return {cos: cos, sin: -sin, angle: -angle} as Rotation;
+    }
+    static inverse(r: Rotation): Rotation{
+        return {cos: r.cos, sin: -r.sin, angle: -r.angle} as Rotation;
     }
     static minus(a: Rotation, b: Rotation): Rotation{
         return Rotation.plus(a,b.inverse());
