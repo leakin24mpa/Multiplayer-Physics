@@ -8,26 +8,31 @@ export class vec2{
         this.x = x;
         this.y = y;
     }
-    add(other: vec2){
+    add(other: vec2): vec2{
         this.x += other.x;
         this.y += other.y;
+        return this;
     }
-    subtract(other: vec2){
+    subtract(other: vec2): vec2{
         this.x -= other.x;
         this.y -= other.y;
+        return this;
     }
-    multiplyBy(scalar: number){
+    multiplyBy(scalar: number): vec2{
         this.x *= scalar;
         this.y *= scalar;
+        return this;
     }
-    divideBy(scalar: number){
+    divideBy(scalar: number): vec2{
         this.x /= scalar;
         this.y /= scalar;
+        return this;
     }
-    normalize(){
+    normalize(): vec2{
         let length = this.mag();
         this.x /= length;
         this.y /= length;
+        return this;
     }
     magSqr(): number{
         return this.x * this.x + this.y * this.y;
@@ -35,12 +40,14 @@ export class vec2{
     mag(): number{
         return Math.sqrt(this.magSqr());
     }
-    rotateBy(r: Rotation){
+    rotateBy(r: Rotation): vec2{
         let x = this.x * r.cos - this.y * r.sin;
         let y = this.y * r.cos + this.x * r.sin;
         this.x = x;
         this.y = y;
+        return this;
     }
+    
     static plus(a: vec2, b: vec2): vec2{
         return new vec2(a.x + b.x, a.y + b.y);
     }
@@ -101,6 +108,9 @@ export class Rotation{
     unitVector(): vec2{
         return new vec2(this.cos, this.sin);
     }
+    getDegrees(): number{
+        return this.angle * 180 / Math.PI;
+    }
     static plus(a: Rotation, b: Rotation): Rotation{
         let angle = a.angle + b.angle;
         let cos = a.cos * b.cos - a.sin * b.sin;
@@ -110,4 +120,10 @@ export class Rotation{
     static minus(a: Rotation, b: Rotation): Rotation{
         return Rotation.plus(a,b.inverse());
     }
+    static fromDegrees(d: number): Rotation{
+        return new Rotation(d * Math.PI / 180);
+    }
+    static readonly ccw90deg = {angle: Math.PI/2, cos: 0, sin: 1} as Rotation;
+    static readonly cw90deg = {angle: -Math.PI/2, cos: 0, sin: -1} as Rotation;
+    static readonly zero = {angle: 0, cos: 1, sin: 0} as Rotation;
 }
