@@ -23,7 +23,7 @@ let users = [];
 
 
 
-app.use(express.static('../client'));
+app.use(express.static('./src/client'));
 
 
 console.log('\n\n\n >> Server Started');
