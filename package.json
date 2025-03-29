@@ -4,7 +4,7 @@
   "description": "idk",
   "main": "server.js",
   "scripts": {
-    "start": "node dist/server/src/server.js",
+    "start": "node dist/server.js",
     "build": "tsc"
   },
   "keywords": [
