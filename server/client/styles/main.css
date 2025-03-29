@@ -1,0 +1,63 @@
+body{
+    background-color: rgb(19, 22, 24);
+    font-family: Alata;
+}
+#events{
+    background-color: rgb(10, 10, 10);
+    width: 400px;
+    height: 300px;
+    border-radius: 10px;
+    margin: 10px;
+    padding: 10px;
+    color:rgb(108, 118, 138);
+    overflow: hidden;
+    overflow-y: scroll;
+}
+
+
+.chat-wrapper{
+    position: relative;
+    border-radius: 10px;
+    border-color: rgb(101, 232, 236);
+    border-width: 10px;
+    background-color: rgb(37, 37, 37);
+    margin: 20px;
+    width: 400px;
+    height: 62px;
+    max-height: 100%;
+
+}
+#chat-form{
+    position: relative;
+    margin: 20px;
+    height: 30px;
+    width: 400px;
+    top: 5px;
+    left: -15px;
+}
+#chat{
+    border-radius: 5px;
+    width: 300px;
+    height: 50px;
+    background-color: black;
+    border: none;
+    outline: none;
+    outline-color:rgb(18, 80, 88);
+    color: rgb(108, 118, 138);
+}
+button{
+    background-color: rgb(48, 192, 211);
+    border-radius: 5px;
+    border: none;
+    height: 50px;
+    width: 150px;
+    color: rgb(61, 80,80);
+    font-family: Alata;
+}
+#say{
+    height: 50px;
+    width: 80px;
+}
+p{
+    color: cornflowerblue;
+}

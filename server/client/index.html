@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>testing stuff</title>
+        <link rel="stylesheet" href="styles/main.css"></link>
+        <link rel="shortcut icon" href="img/chatNotification.png" type="image/x-icon">
+        <script src="/socket.io/socket.io.js"></script>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Alata">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.js"></script>
+    </head>
+    <body>
+        
+        <div class="controls-wrapper">
+            <ul id="events"></ul>
+            <div class="controls">
+                <div class="chat-wrapper">
+                    <form id="chat-form">
+                        <input id="chat" autocomplete="off" title="chat" placeholder="enter a username..."/>
+                        <button id="say">Join</button>  
+                    </form>
+                    
+                </div>
+            </div>
+            <p id = 'user'>new user</p>
+
+        </div>
+        <script src="src/client.js"></script>
+    </body>
+</html>
