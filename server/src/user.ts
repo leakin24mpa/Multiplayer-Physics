@@ -1,6 +1,6 @@
 
-export class user{
+export class User{
     name: string;
     id: string;
-    
+
 }
