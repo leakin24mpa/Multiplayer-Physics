@@ -1,6 +1,6 @@
 import { PhysicsObject } from "./body.js";
 import { Rotation, vec2 } from "./calc.js";
-import { Polygon, Shape, Vertex } from "./geometry.js";
+import { Circle, Polygon, Shape, ShapeType, Vertex } from "./geometry.js";
 
 export interface Contact{
     depth: number;
@@ -19,6 +19,17 @@ export interface SATresult{
     depth: number;
     Aindex: number;
     Bindex: number;
+}
+function invert(r: Contact){
+    r.normal = r.normal.inverse();
+
+    let objectB = r.objectB;
+    r.objectB = r.objectA;
+    r.objectA = objectB;
+
+    let shapeB = r.shapeB;
+    r.shapeB = r.shapeA;
+    r.shapeA = shapeB;
 }
 function objectToVertexSpace(v: vec2, vert: Vertex): vec2{
     return vec2.worldToLocalSpace(v , vert.position, {angle: 0, cos: vert.normal.x, sin: vert.normal.y} as Rotation)
@@ -130,9 +141,107 @@ export function PolygonCollsion(shapeA: Polygon, shapeB: Polygon, objectA: Physi
         return false;
     }
     if(rB.depth < rA.depth){
+        invert(rB);
         return rB;
     }
     else{
         return rA;
+    }
+}
+export function CirclePolygonCollision(shapeA: Circle, shapeB: Polygon, objectA: PhysicsObject, objectB: PhysicsObject): Contact | false{
+    let localCenter = objectB.worldToLocalSpace(objectA.localToWorldSpace(shapeA.COM));
+    let minDepth = Infinity;
+    let normal: vec2;
+    let bestContact: vec2;
+
+    for(let i = 0; i < shapeB.vertices.length; i++){
+        let vertex = shapeB.vertices[i];
+        let contact: vec2;
+        let relativeCenter = objectToVertexSpace(localCenter, vertex);
+        if(relativeCenter.x > shapeA.radius){
+            return false;
+        }
+        let depth = 0;
+        if(relativeCenter.y > 0){
+            depth = shapeA.radius - relativeCenter.mag();
+            contact = new vec2(0,0);
+            if(depth < 0){
+                return false;
+            }
+        }
+        else{
+            depth = shapeA.radius - relativeCenter.x;
+            contact = new vec2(0, relativeCenter.y);
+        }
+        if(depth < minDepth){
+            minDepth = depth;
+            normal = vertex.normal;
+            bestContact = contact;
+        }
+
+    }
+    return {
+        shapeA: shapeA,
+        shapeB: shapeB,
+
+        objectA: objectA,
+        objectB: objectB,
+
+        normal: normal.rotateBy(objectB.angle),
+        depth: minDepth,
+
+        contactPoints: [bestContact]
+    }
+}
+export function PolygonCircleCollsion(shapeA: Polygon, shapeB: Circle, objectA: PhysicsObject, objectB: PhysicsObject): Contact | false{
+    let ret = CirclePolygonCollision(shapeB, shapeA, objectB, objectA);
+    if(!ret){
+        return false;
+    }
+    else{
+        invert(ret);
+        return ret;
+    }
+}
+
+export function CircleCircleCollision(shapeA: Circle, shapeB: Circle, objectA: PhysicsObject, objectB: PhysicsObject): Contact | false{
+    let Acenter = objectB.worldToLocalSpace(objectA.localToWorldSpace(shapeA.COM));
+    let between = vec2.minus(Acenter, shapeB.COM);
+    let dist = between.mag();
+    if(dist> shapeA.radius + shapeB.radius){
+        return false;
+    }
+    else{
+        let normal = vec2.dividedBy(between, dist);
+        return{
+            depth: shapeA.radius + shapeB.radius - dist,
+            normal: normal.rotateBy(objectB.angle),
+
+            shapeA: shapeA,
+            shapeB: shapeB,
+
+            objectA: objectA,
+            objectB: objectB,
+
+            contactPoints: [objectB.localToWorldSpace(vec2.times(normal, shapeB.radius))]
+        }
+    }
+}
+export function ShapeCollision(shapeA: Shape, shapeB: Shape, objectA: PhysicsObject, objectB: PhysicsObject): Contact | false{
+    if(shapeA.type == ShapeType.CIRCLE){
+        if(shapeB.type == ShapeType.CIRCLE){
+            return CircleCircleCollision(shapeA as Circle, shapeB as Circle, objectA, objectB);
+        }
+        else{
+            return CirclePolygonCollision(shapeA as Circle, shapeB as Polygon, objectA, objectB);
+        }
+    }
+    else{
+        if(shapeB.type == ShapeType.CIRCLE){
+            return PolygonCircleCollsion(shapeA as Polygon, shapeB as Circle, objectA, objectB);
+        }
+        else{
+            return PolygonCollsion(shapeA as Polygon, shapeB as Polygon, objectA, objectB);
+        }
     }
 }
