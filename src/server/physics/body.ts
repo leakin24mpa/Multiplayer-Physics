@@ -136,7 +136,6 @@ export class PhysicsObject implements GameObject{
             COM.add(vec2.times(this.colliders[i].COM, this.colliders[i].area));
         }
         COM.divideBy(totalArea);
-        console.log(COM);
         this.mass = totalArea * this.material.density;
 
         let inertia = 0;

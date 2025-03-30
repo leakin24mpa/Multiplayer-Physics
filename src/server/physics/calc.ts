@@ -118,7 +118,7 @@ export class Rotation{
         return this;
     }
     inverse(): Rotation{
-        return {cos: this.cos, sin: -this.sin, angle: -this.angle} as Rotation;
+        return ({cos: this.cos, sin: -this.sin, angle: -this.angle} as Rotation);
     }
     unitVector(): vec2{
         return new vec2(this.cos, this.sin);
