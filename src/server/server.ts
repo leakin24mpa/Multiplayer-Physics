@@ -98,7 +98,7 @@ function newConnection(socket){
     })
 }
 
-let r = PhysicsObject.rectangle(new vec2(0,0), 2, 2, {bounciness: 1});
+let r = PhysicsObject.rectangle(new vec2(0,0), 2, 2, {velocity: new vec2(-1,0), bounciness: 1});
 let c = PhysicsObject.regularPolygon(new vec2(3,0), 1, 7, {angularVelocity: Rotation.new(1), bounciness: 1, angle: Rotation.fromDegrees(180)});
 
 let floor = Polygon.rectangle(new vec2(0,5), 10, 1);
