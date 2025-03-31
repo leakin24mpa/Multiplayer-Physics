@@ -1,5 +1,5 @@
 import { Rotation, vec2 } from "./calc.js";
-import { Shape } from "./geometry.js";
+import { Circle, Polygon, Shape, ShapeType } from "./geometry.js";
 
 export class Material{
     bounciness: number; 
@@ -23,15 +23,10 @@ export class Collection implements GameObject{
     isCollection = true;
     children: GameObject[] = [];
 
-    constructor(children: GameObject | GameObject[]){
-        if(Array.isArray(children)){
-            this.children = children;
-        }
-        else{
-            this.children = [children];
-        }
+    constructor(children: GameObject[]){
+        this.children = children;
     }
-    static ofObjects(objects: GameObject | GameObject[]){
+    static ofObjects(...objects: GameObject[]){
         return new Collection(objects)
     }
     addObjects(objects: GameObject | GameObject[]){
@@ -64,6 +59,7 @@ interface PhysicsObjectOptions{
     friction?: number;
     density?: number;
     material?: Material;
+    static?: boolean;
 
 }
 export class PhysicsObject implements GameObject{
@@ -77,8 +73,8 @@ export class PhysicsObject implements GameObject{
     lastPosition: vec2;
     lastAngle: Rotation;
 
-    acceleration: vec2 = new vec2(0,0);
-    angularAccerleration: Rotation = new Rotation(0);
+    acceleration: vec2 = vec2.zero();
+    angularAccerleration: Rotation = Rotation.zero();
 
     mass: number;
     inverseMass: number;
@@ -93,8 +89,8 @@ export class PhysicsObject implements GameObject{
         this.position  = position;
         this.angle = angle;
 
-        this.lastPosition = position;
-        this.lastAngle = angle;
+        this.lastPosition = position.copy();
+        this.lastAngle = angle.copy();
 
         this.colliders = colliders;
         if(options){
@@ -127,6 +123,10 @@ export class PhysicsObject implements GameObject{
             this.material = Material.default;
         }
         this.calculateProperties();
+        if(options && options.static){
+            this.inverseMass = 0;
+            this.inverseInertia = 0;
+        }
     }
     private calculateProperties(){
         let COM = new vec2(0,0);
@@ -160,5 +160,38 @@ export class PhysicsObject implements GameObject{
     }
  
 
-    static readonly empty = new PhysicsObject(vec2.zero, Rotation.zero, [], {density: Infinity});
+    //static readonly empty = new PhysicsObject(vec2.zero, Rotation.zero, [], {density: Infinity});
+    static rectangle(position: vec2, width: number, height: number, options?: PhysicsObjectOptions): PhysicsObject{
+        return new PhysicsObject(position, Rotation.zero(), [Polygon.rectangle(vec2.zero(), width, height)], options);
+    }
+    static regularPolygon(position: vec2, radius: number, sides: number, options?: PhysicsObjectOptions): PhysicsObject{
+        return new PhysicsObject(position, Rotation.zero(), [Polygon.regularPolygon(vec2.zero(), radius, sides)], options);
+    }
+    static circle(position: vec2, radius: number, options?: PhysicsObjectOptions): PhysicsObject{
+        return new PhysicsObject(position, Rotation.zero(), [new Circle(vec2.zero(), radius)], options);
+    }
+    packForExport(){
+        let shapes = [];
+        for(let i = 0; i < this.colliders.length; i++){
+            if(this.colliders[i].type == ShapeType.CIRCLE){
+                shapes.push({
+                    isCircle: true,
+                    center: this.colliders[i].COM,
+                    radius: (this.colliders[i] as Circle).radius
+                });
+            }
+            else{
+                shapes.push({
+                    isCircle: false,
+                    vertices: (this.colliders[i] as Polygon).vertices.map((v) => {return {x: v.position.x, y: v.position.y}})
+                });
+            }
+        }
+
+        return{
+            position: {x: this.position.x, y: this.position.y},
+            angle: this.angle.angle,
+            shapes: shapes
+        }
+    }
 }

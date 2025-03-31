@@ -3,9 +3,14 @@ import { Rotation, vec2 } from "./calc.js";
 
 export class World{
     root: Collection;
-    gravity: vec2;
-    addObjects(objects: GameObject[]){
-        this.root.addObjects(objects);
+    gravity: vec2 = new vec2(0,0);
+    positionIterations: number = 5;
+    velocityIterations: number = 5;
+    constructor( ...objects: GameObject[]){
+        this.root = new Collection(objects);
+    }
+    addObjects(...objects: GameObject[]){
+            this.root.addObjects(objects);
     }
     
     step(dt: number){
@@ -15,7 +20,7 @@ export class World{
 
             //verlet integration: p(t + 1) = 2 * p(t) - p(t - 1) + a(t) * dt^2
             let newPosition = vec2.times(object.position, 2).subtract(object.lastPosition).add(vec2.times(object.acceleration, dt * dt));
-            let newAngle = Rotation.plus(object.angle, object.angle).subtract(object.lastAngle).add(Rotation.times(object.angularAccerleration, dt * dt));
+            let newAngle = Rotation.plus(object.angle, object.angle).subtract(object.lastAngle) //.add(Rotation.times(object.angularAccerleration, dt * dt));
 
             object.lastPosition = object.position;
             object.lastAngle = object.angle;
@@ -23,12 +28,14 @@ export class World{
             object.position = newPosition;
             object.angle = newAngle;
 
-            object.acceleration = vec2.zero;
-            object.angularAccerleration = Rotation.zero;
+            object.acceleration = vec2.zero();
+            object.angularAccerleration = Rotation.zero();
         }
 
     }
-
+    packForExport(){
+        return this.root.getAllObjects().map((o)=> o.packForExport());
+    }
 }
 
 

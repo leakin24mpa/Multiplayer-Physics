@@ -68,11 +68,7 @@ const onChatSubmitted = (e) => {
     
 
 })();
-let playerX = 0;
-let playerY = 0;
 
-let playerVX = 0;
-let playerVY = 0;
 let users = [];
 
 let physicsObjects = [];
@@ -100,70 +96,15 @@ function setup(){
 
 
 function draw(){
-
-    if(keyIsDown(83)){
-        playerVY += 2;
-    }
-    if(keyIsDown(87)){
-        playerVY -= 2;
-    }
-    if(keyIsDown(65)){
-        playerVX -= 2;
-    }
-    if(keyIsDown(68)){
-        playerVX += 2;
-    }
-    playerVX *= 0.9;
-    playerVY *= 0.9;
-
-
-    playerX += playerVX;
-    playerY += playerVY;
+    sendUpdate();
     
     background(0);
     fill(255);
-    
-    translate(width/2, height /2);
-    
-    
-    sendUpdate();
-    
-    for(let i = 0; i < users.length; i++){
-        let player = users[i].player;
-        if(player.colliding){
-            fill(255,0,0);
-        }
-        else{
-            fill(0,0,255);
-        }
-        push();
-        translate(player.x, -player.y);
-        rect(0,0, player.width, player.height);
-        fill(0);
-        text(users[i].name, 0, 0);
-        pop();
-        
-    }
+
+    translate(width/2, height/2);
     scale(50);
-    for(let i = 0; i < physicsObjects.length; i++){
-        let object = physicsObjects[i];
-        push();
-        translate(object.position.x, object.position.y);
-        rotate(object.angle);
-        noStroke();
-        fill(50 * i,100,0);
-        if(i == 2){
-            rect(0,0,4,0.5);
-        }
-        else if(i < 2){
-            rect(0,0,0.5,0.5);
-        }
-        else{
-            rect(0,0,0.3,0.3);
-        }
-        
-        
-        pop();
-    }
+    
+   
+    renderWorld(physicsObjects);
     
 }

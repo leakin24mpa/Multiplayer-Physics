@@ -1,7 +1,8 @@
 import { PhysicsObject } from "./physics/body.js";
 import { Rotation, vec2 } from "./physics/calc.js";
-import { PolygonCollsion } from "./physics/collision.js";
+import { Collision, PolygonCollsion } from "./physics/collision.js";
 import { Circle, Polygon, Shape, ShapeType } from "./physics/geometry.js";
+import { World } from "./physics/world.js";
 
 function formatNumber(n: number){
     return Math.round(n * 1000)/1000
@@ -44,10 +45,10 @@ function logBody(b: PhysicsObject ){
         logShape(b.colliders[i]);
     }
 }
-let rect2 = Polygon.rectangle(new vec2(2,1), 2, 2);
-console.log(rect2);
+let rect2 = PhysicsObject.rectangle(new vec2(2,1), 2, 2);
+//console.log(rect2);
 
-let rect = Polygon.rectangle(new vec2(1,0), 2, 2);
+let rect = PhysicsObject.rectangle(new vec2(1,0), 2, 2);
 //logShape(rect);
 
 
@@ -58,7 +59,26 @@ let rect = Polygon.rectangle(new vec2(1,0), 2, 2);
 //let b1 = new PhysicsObject(vec2.zero, Rotation.zero, [rect, rect2]);
 //logBody(b1);
 
-console.log(PolygonCollsion(rect, rect2, PhysicsObject.empty, PhysicsObject.empty));
+//console.log(Collision(rect2, rect));
+console.dir(rect.packForExport(), {depth: null})
+
+let r1 = new Rotation(Math.PI / 4);
+let r2 = new Rotation(Math.PI / 4);
+
+r1.subtract(r2);
+//console.log(r1);
+
+let r = PhysicsObject.rectangle(new vec2(0,0), 2, 2);
+let c = PhysicsObject.regularPolygon(new vec2(4,0), 1, 7, {angularVelocity: new Rotation(Math.PI * 2)});
+
+
+let world = new World(r,c);
+
+
+console.log(c.angle);
+world.step(1 / 60);
+console.log(c.angle);
+
 //console.log(b1);
 
 

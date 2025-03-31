@@ -45,9 +45,7 @@ function SAT(shapeA: Polygon, shapeB: Polygon, objectA: PhysicsObject, objectB: 
 
     //find which normal of shapeB has the least overlap
     for(let axis = 0; axis < shapeB.vertices.length; axis++){
-        if(shapeB.vertices[axis].isInternal){
-            continue;
-        }
+        
         let AminProjection = Infinity;
         let mindex: number;
 
@@ -67,6 +65,9 @@ function SAT(shapeA: Polygon, shapeB: Polygon, objectA: PhysicsObject, objectB: 
         }
         if(AminProjection > BmaxProjection){
             return false;
+        }
+        if(shapeB.vertices[axis].isInternal){
+            continue;
         }
         if(BmaxProjection - AminProjection < bestResult.depth){
             bestResult.depth = BmaxProjection - AminProjection;
@@ -156,6 +157,7 @@ export function CirclePolygonCollision(shapeA: Circle, shapeB: Polygon, objectA:
 
     for(let i = 0; i < shapeB.vertices.length; i++){
         let vertex = shapeB.vertices[i];
+        
         let contact: vec2;
         let relativeCenter = objectToVertexSpace(localCenter, vertex);
         if(relativeCenter.x > shapeA.radius){
@@ -172,6 +174,9 @@ export function CirclePolygonCollision(shapeA: Circle, shapeB: Polygon, objectA:
         else{
             depth = shapeA.radius - relativeCenter.x;
             contact = new vec2(0, relativeCenter.y);
+        }
+        if(vertex.isInternal){
+            continue;
         }
         if(depth < minDepth){
             minDepth = depth;
@@ -244,4 +249,16 @@ export function ShapeCollision(shapeA: Shape, shapeB: Shape, objectA: PhysicsObj
             return PolygonCollsion(shapeA as Polygon, shapeB as Polygon, objectA, objectB);
         }
     }
+}
+export function Collision(objectA: PhysicsObject, objectB: PhysicsObject){
+    let results: Contact[] = [];
+    for(let i = 0; i < objectA.colliders.length; i++){
+        for(let j = 0; j < objectB.colliders.length; j++){
+            let res = ShapeCollision(objectA.colliders[i], objectB.colliders[j], objectA, objectB);
+            if(res){
+                results.push(res);
+            }
+        }
+    }
+    return results;
 }

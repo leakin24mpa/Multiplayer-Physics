@@ -20,7 +20,7 @@ export class Polygon{
     vertices: Vertex[];
     constructor(points: vec2[], internalEdges?: boolean[]){
         let totalArea = 0;
-        this.COM = new vec2(0,0);
+        this.COM = vec2.zero();
         let lastPoint = points[points.length - 1];
         this.vertices = [];
         this.inertia = 0;
@@ -34,7 +34,7 @@ export class Polygon{
 
             this.vertices.push(
                 {position: points[i], 
-                 normal: vec2.minus(points[i], lastPoint).normalize().rotateBy(Rotation.cw90deg), 
+                 normal: vec2.minus(points[i], lastPoint).normalize().rotateBy(Rotation.cw90deg()), 
                  isInternal: internalEdges? internalEdges[i]: false});
             lastPoint = points[i];
         }

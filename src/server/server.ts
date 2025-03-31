@@ -2,6 +2,9 @@
 import express from 'express';
 import { networkInterfaces } from 'os';
 import { Server as socket } from 'socket.io'
+import { Collection, PhysicsObject } from './physics/body.js';
+import { Rotation, vec2 } from './physics/calc.js';
+import { World } from './physics/world.js';
 
 console.clear();
 let app = express();
@@ -93,17 +96,27 @@ function newConnection(socket){
         console.log(name + " disconnected")
     })
 }
+let r = PhysicsObject.rectangle(new vec2(0,0), 2, 2);
+let c = PhysicsObject.regularPolygon(new vec2(4,0), 1, 7, {angularVelocity: new Rotation(0.1)});
+
+
+let world = new World(r,c);
+
+
+
+
 function updateGame(dt){
-    
+    world.step(dt);
     
     
         
 }
 setInterval(broadcastPosition, 1000 / 60);
 function broadcastPosition(){
-    updateGame(10);
+    updateGame(1 / 60);
+    //console.log(c.angle);
     //io.sockets.emit('update', users);
-    io.sockets.emit('physics', );
+    io.sockets.emit('physics', world.packForExport());
 
 }
 
