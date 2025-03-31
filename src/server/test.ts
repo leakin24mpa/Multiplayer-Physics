@@ -62,14 +62,14 @@ let rect = PhysicsObject.rectangle(new vec2(1,0), 2, 2);
 //console.log(Collision(rect2, rect));
 console.dir(rect.packForExport(), {depth: null})
 
-let r1 = new Rotation(Math.PI / 4);
-let r2 = new Rotation(Math.PI / 4);
+let r1 = Rotation.new(Math.PI / 4);
+let r2 = Rotation.new(Math.PI / 4);
 
 r1.subtract(r2);
 //console.log(r1);
 
 let r = PhysicsObject.rectangle(new vec2(0,0), 2, 2);
-let c = PhysicsObject.regularPolygon(new vec2(4,0), 1, 7, {angularVelocity: new Rotation(Math.PI * 2)});
+let c = PhysicsObject.regularPolygon(new vec2(4,0), 1, 7, {angularVelocity: Rotation.new(Math.PI * 2)});
 
 
 let world = new World(r,c);

@@ -97,7 +97,7 @@ function newConnection(socket){
     })
 }
 let r = PhysicsObject.rectangle(new vec2(0,0), 2, 2);
-let c = PhysicsObject.regularPolygon(new vec2(4,0), 1, 7, {angularVelocity: new Rotation(0.1)});
+let c = PhysicsObject.regularPolygon(new vec2(4,0), 1, 7, {angularVelocity: Rotation.new(0.1)});
 
 
 let world = new World(r,c);

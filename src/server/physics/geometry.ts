@@ -64,7 +64,7 @@ export class Polygon{
     }
     static regularPolygon(position: vec2, radius: number, sides: number){
         let points = [];
-        let rot = new Rotation(2 * Math.PI / sides)
+        let rot = Rotation.new(2 * Math.PI / sides)
         let vertex = vec2.rotatedBy(new vec2(0, -radius), Rotation.times(rot, 0.5));
         for(let i = 0; i < sides; i++){
             points.push(vec2.plus(vertex, position));

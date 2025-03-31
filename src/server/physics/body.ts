@@ -156,7 +156,7 @@ export class PhysicsObject implements GameObject{
     }
     applyForce(force: vec2, location: vec2){
         this.acceleration.add(vec2.times(force, this.inverseMass));
-        this.angularAccerleration.add(new Rotation(vec2.cross(location, force) * this.inverseInertia));
+        this.angularAccerleration.add(Rotation.new(vec2.cross(location, force) * this.inverseInertia));
     }
  
 
