@@ -5,7 +5,7 @@ import { Solver } from "./solver.js";
 
 export class World{
     root: Collection;
-    gravity: vec2 = new vec2(0,0);
+    gravity: vec2 = new vec2(0,1);
     
     solver: Solver = new Solver();
 
@@ -69,7 +69,7 @@ export class World{
         for(let i = 0; i < objects.length; i++){
             objects[i].lastPosition.subtract(vec2.times(objects[i].acceleration, dt));
             objects[i].lastAngle.subtract(Rotation.times(objects[i].angularAccerleration, dt));
-            
+
             objects[i].acceleration = vec2.zero();
             objects[i].angularAccerleration = Rotation.zero();
         }

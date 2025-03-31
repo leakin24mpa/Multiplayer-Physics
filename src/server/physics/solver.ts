@@ -40,8 +40,8 @@ export class Solver{
 
         let nContacts = c.contactPoints.length;
         for(let i = 0; i < nContacts; i++){
-            let contactA = objectA.worldToLocalSpace(c.contactPoints[i]);
-            let contactB = objectB.worldToLocalSpace(c.contactPoints[i]);
+            let contactA = vec2.minus(c.contactPoints[i], objectA.position);
+            let contactB = vec2.minus(c.contactPoints[i], objectB.position);
 
             let relativeVelocity = vec2.minus(objectA.getVelocityOfPoint(contactA), objectB.getVelocityOfPoint(contactB));
 
@@ -54,11 +54,6 @@ export class Solver{
 
             let impulseMagnitude = -(restitution + 1) * dot / (objectA.inverseMass + objectB.inverseMass) / nContacts;
 
-            console.log("\n\nNext ");
-            console.log(dot);
-            console.log(normal);
-            console.log(relativeVelocity);
-            console.log(impulseMagnitude);
             objectA.applyForce(vec2.times(normal, impulseMagnitude), vec2.zero());
             objectB.applyForce(vec2.times(normal, -impulseMagnitude), vec2.zero());
 

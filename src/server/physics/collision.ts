@@ -63,7 +63,7 @@ function SAT(shapeA: Polygon, shapeB: Polygon, objectA: PhysicsObject, objectB: 
             }
 
         }
-        if(AminProjection > BmaxProjection){
+        if(AminProjection > BmaxProjection){         
             return false;
         }
         if(shapeB.vertices[axis].isInternal){
@@ -88,8 +88,9 @@ function SAT(shapeA: Polygon, shapeB: Polygon, objectA: PhysicsObject, objectB: 
     
     let n2 = shapeA.vertices[n1idx].normal;
 
-    n1.rotateBy(objectA.angle).rotateBy(Rotation.inverse(objectB.angle));
-    n2.rotateBy(objectA.angle).rotateBy(Rotation.inverse(objectB.angle));
+    
+    n1 = vec2.rotatedBy(n1, objectA.angle).rotateBy(Rotation.inverse(objectB.angle));
+    n2 = vec2.rotatedBy(n2, objectA.angle).rotateBy(Rotation.inverse(objectB.angle));
 
     let contactPoints: vec2[];
     if(vec2.dot(n1, bestResult.axis) < vec2.dot(n2, bestResult.axis)){
@@ -124,7 +125,7 @@ function SAT(shapeA: Polygon, shapeB: Polygon, objectA: PhysicsObject, objectB: 
         objectA: objectA,
         objectB: objectB,
 
-        normal: bestResult.axis.rotateBy(objectB.angle),
+        normal: vec2.rotatedBy(bestResult.axis,objectB.angle),
         depth: bestResult.depth,
 
         contactPoints: contactPoints

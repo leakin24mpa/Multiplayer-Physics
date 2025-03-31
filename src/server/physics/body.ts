@@ -49,6 +49,7 @@ export class Collection implements GameObject{
     }
 }
 interface PhysicsObjectOptions{
+    angle?: Rotation;
     velocity?: vec2;
     angularVelocity?: Rotation;
     bounciness?: number;
@@ -85,12 +86,18 @@ export class PhysicsObject implements GameObject{
     material: Material;
 
     colliders: Shape[];
-    constructor(position: vec2, angle: Rotation, colliders: Shape[], options?: PhysicsObjectOptions){
+    constructor(position: vec2, colliders: Shape[], options?: PhysicsObjectOptions){
         this.position  = position;
-        this.angle = angle;
+        if(options && options.angle){
+            this.angle = options.angle;
+        }
+        else{
+            this.angle = Rotation.zero();
+        }
+        
 
         this.lastPosition = position.copy();
-        this.lastAngle = angle.copy();
+        this.lastAngle = this.angle.copy();
 
 
         this.colliders = colliders;
@@ -183,13 +190,13 @@ export class PhysicsObject implements GameObject{
 
     //static readonly empty = new PhysicsObject(vec2.zero, Rotation.zero, [], {density: Infinity});
     static rectangle(position: vec2, width: number, height: number, options?: PhysicsObjectOptions): PhysicsObject{
-        return new PhysicsObject(position, Rotation.zero(), [Polygon.rectangle(vec2.zero(), width, height)], options);
+        return new PhysicsObject(position, [Polygon.rectangle(vec2.zero(), width, height)], options);
     }
     static regularPolygon(position: vec2, radius: number, sides: number, options?: PhysicsObjectOptions): PhysicsObject{
-        return new PhysicsObject(position, Rotation.zero(), [Polygon.regularPolygon(vec2.zero(), radius, sides)], options);
+        return new PhysicsObject(position, [Polygon.regularPolygon(vec2.zero(), radius, sides)], options);
     }
     static circle(position: vec2, radius: number, options?: PhysicsObjectOptions): PhysicsObject{
-        return new PhysicsObject(position, Rotation.zero(), [new Circle(vec2.zero(), radius)], options);
+        return new PhysicsObject(position, [new Circle(vec2.zero(), radius)], options);
     }
     packForExport(){
         let shapes = [];

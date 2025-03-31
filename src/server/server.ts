@@ -99,17 +99,16 @@ function newConnection(socket){
 }
 
 let r = PhysicsObject.rectangle(new vec2(0,0), 2, 2, {bounciness: 1});
-let c = PhysicsObject.regularPolygon(new vec2(4,0), 1, 7, {velocity: new vec2(-1, 0), bounciness: 1});
+let c = PhysicsObject.regularPolygon(new vec2(3,0), 1, 7, {angularVelocity: Rotation.new(1), bounciness: 1, angle: Rotation.fromDegrees(180)});
 
 let floor = Polygon.rectangle(new vec2(0,5), 10, 1);
 let leftWall = Polygon.rectangle(new vec2(-5,0), 1, 10);
 let rightWall = Polygon.rectangle(new vec2(5,0), 1, 10);
 
-let boundaries = new PhysicsObject(vec2.zero(), Rotation.zero(), [floor, leftWall, rightWall], {static: true, bounciness: 1});
+let boundaries = new PhysicsObject(vec2.zero(), [floor, leftWall, rightWall], {static: true, bounciness: 1});
 
-let world = new World(r,c, boundaries);
+let world = new World(r, c, boundaries);
 
-console.log(boundaries.material.bounciness);
 
 
 
