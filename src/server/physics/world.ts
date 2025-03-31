@@ -1,20 +1,25 @@
 import { Collection, GameObject, PhysicsObject } from "./body.js";
 import { Rotation, vec2 } from "./calc.js";
+import { Collision, Contact } from "./collision.js";
+import { Solver } from "./solver.js";
 
 export class World{
     root: Collection;
     gravity: vec2 = new vec2(0,0);
-    positionIterations: number = 5;
-    velocityIterations: number = 5;
-    constructor( ...objects: GameObject[]){
+    
+    solver: Solver = new Solver();
+
+    constructor(...objects: GameObject[]){
         this.root = new Collection(objects);
     }
     addObjects(...objects: GameObject[]){
-            this.root.addObjects(objects);
+            this.root.addObjects(...objects);
     }
     
     step(dt: number){
         let objects = this.root.getAllObjects();
+
+        //update objects positions based on velocity & acceleration
         for(let i = 0; i < objects.length; i++){
             let object = objects[i];
 
@@ -31,6 +36,18 @@ export class World{
             object.acceleration = vec2.zero();
             object.angularAccerleration = Rotation.zero();
         }
+
+        //check for collisions
+        let contacts: Contact[] = [];
+        for(let i = 0; i < objects.length; i++){
+            let objectA = objects[i];
+            for(let j = i + 1; j < objects.length; j++){
+                let objectB = objects[j];
+                contacts.push(...Collision(objectA, objectB))
+            }
+        }
+        //correct positions (stop colliding objects from overlapping)
+        this.solver.resolvePositions(contacts);
 
     }
     packForExport(){

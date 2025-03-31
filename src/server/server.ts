@@ -96,8 +96,10 @@ function newConnection(socket){
         console.log(name + " disconnected")
     })
 }
-let r = PhysicsObject.rectangle(new vec2(0,0), 2, 2);
-let c = PhysicsObject.regularPolygon(new vec2(4,0), 1, 7, {angularVelocity: Rotation.new(0.1)});
+
+let r = PhysicsObject.rectangle(new vec2(0,0), 2, 2, {static: true});
+let c = PhysicsObject.regularPolygon(new vec2(4,0), 1, 7, {velocity: new vec2(-0.01, 0)});
+
 
 
 let world = new World(r,c);

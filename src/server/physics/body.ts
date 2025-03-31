@@ -29,13 +29,8 @@ export class Collection implements GameObject{
     static ofObjects(...objects: GameObject[]){
         return new Collection(objects)
     }
-    addObjects(objects: GameObject | GameObject[]){
-        if(Array.isArray(objects)){
-            this.children = [].concat(objects)
-        }
-        else{
-            this.children.push(objects);
-        }
+    addObjects(...objects: GameObject[]){
+        this.children.push(...objects);
         return this;
     }
     getAllObjects(): PhysicsObject[]{
