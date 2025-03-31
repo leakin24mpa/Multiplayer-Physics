@@ -13,7 +13,9 @@ export class Material{
         this.staticFriction = staticFriction;
         this.density = density;
     }
-    static default = new Material(0.2, 0.3, 0.4, 1);
+    static default(){
+        return new Material(0.2, 0.3, 0.4, 1);
+    } 
 }
 export interface GameObject{
     isCollection: boolean;
@@ -68,6 +70,8 @@ export class PhysicsObject implements GameObject{
     lastPosition: vec2;
     lastAngle: Rotation;
 
+    deltaTime: number = 1;
+
     acceleration: vec2 = vec2.zero();
     angularAccerleration: Rotation = Rotation.zero();
 
@@ -76,6 +80,7 @@ export class PhysicsObject implements GameObject{
 
     inertia: number;
     inverseInertia: number;
+
 
     material: Material;
 
@@ -86,6 +91,7 @@ export class PhysicsObject implements GameObject{
 
         this.lastPosition = position.copy();
         this.lastAngle = angle.copy();
+
 
         this.colliders = colliders;
         if(options){
@@ -99,7 +105,7 @@ export class PhysicsObject implements GameObject{
                 this.material = options.material;
             }
             else{
-                this.material = Material.default;
+                this.material = Material.default();
             }
             if(options.bounciness){
                 this.material.bounciness = options.bounciness;
@@ -115,7 +121,7 @@ export class PhysicsObject implements GameObject{
             }
         }
         else{
-            this.material = Material.default;
+            this.material = Material.default();
         }
         this.calculateProperties();
         if(options && options.static){
@@ -153,7 +159,27 @@ export class PhysicsObject implements GameObject{
         this.acceleration.add(vec2.times(force, this.inverseMass));
         this.angularAccerleration.add(Rotation.new(vec2.cross(location, force) * this.inverseInertia));
     }
- 
+    translate(t: vec2, updateVelocity: boolean){
+        this.position.add(t);
+        if(!updateVelocity){
+            this.lastPosition.add(t);
+        }
+    }
+    rotate(r: Rotation, updateVelocity: boolean){
+        this.angle.add(r);
+        if(!updateVelocity){
+            this.lastAngle.add(r);
+        }
+    }
+    getVelocity(): vec2{
+        return vec2.minus(this.position, this.lastPosition).divideBy(this.deltaTime);
+    }
+    getAngularVelocity(): Rotation{
+        return Rotation.times(Rotation.minus(this.angle, this.lastAngle),1 / this.deltaTime);
+    }
+    getVelocityOfPoint(point: vec2): vec2{
+        return vec2.plus(this.getVelocity(), vec2.times(vec2.rotatedBy(point, Rotation.ccw90deg()), this.getAngularVelocity().angle));
+    }
 
     //static readonly empty = new PhysicsObject(vec2.zero, Rotation.zero, [], {density: Infinity});
     static rectangle(position: vec2, width: number, height: number, options?: PhysicsObjectOptions): PhysicsObject{

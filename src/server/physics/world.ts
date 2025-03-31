@@ -15,17 +15,24 @@ export class World{
     addObjects(...objects: GameObject[]){
             this.root.addObjects(...objects);
     }
-    
+   
     step(dt: number){
+
         let objects = this.root.getAllObjects();
 
         //update objects positions based on velocity & acceleration
         for(let i = 0; i < objects.length; i++){
             let object = objects[i];
-
+    
+        
             //verlet integration: p(t + 1) = 2 * p(t) - p(t - 1) + a(t) * dt^2
-            let newPosition = vec2.times(object.position, 2).subtract(object.lastPosition).add(vec2.times(object.acceleration, dt * dt));
-            let newAngle = Rotation.plus(object.angle, object.angle).subtract(object.lastAngle) //.add(Rotation.times(object.angularAccerleration, dt * dt));
+            let newPosition = vec2.minus(object.position, object.lastPosition).multiplyBy(dt / object.deltaTime).add(object.position);
+            if(object.inverseMass != 0){
+                newPosition.add(vec2.times(this.gravity, dt * dt));
+            }
+
+            let newAngle = Rotation.new(((object.angle.angle - object.lastAngle.angle) * dt / object.deltaTime) + object.angle.angle);
+
 
             object.lastPosition = object.position;
             object.lastAngle = object.angle;
@@ -35,6 +42,10 @@ export class World{
 
             object.acceleration = vec2.zero();
             object.angularAccerleration = Rotation.zero();
+
+            //console.log(object.deltaTime);
+            object.deltaTime = dt;
+            
         }
 
         //check for collisions
@@ -46,8 +57,22 @@ export class World{
                 contacts.push(...Collision(objectA, objectB))
             }
         }
+        //Apply collision impulse forces
+        this.solver.resolveVelocities(contacts);
+        this.applyAccelerations(objects, dt);
         //correct positions (stop colliding objects from overlapping)
         this.solver.resolvePositions(contacts);
+        
+
+    }
+    applyAccelerations(objects: PhysicsObject[], dt: number){
+        for(let i = 0; i < objects.length; i++){
+            objects[i].lastPosition.subtract(vec2.times(objects[i].acceleration, dt));
+            objects[i].lastAngle.subtract(Rotation.times(objects[i].angularAccerleration, dt));
+            
+            objects[i].acceleration = vec2.zero();
+            objects[i].angularAccerleration = Rotation.zero();
+        }
 
     }
     packForExport(){

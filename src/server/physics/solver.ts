@@ -1,3 +1,4 @@
+import { exit } from "process";
 import { PhysicsObject } from "./body.js";
 import { vec2 } from "./calc.js";
 import { Contact } from "./collision.js";
@@ -12,27 +13,55 @@ function getMassFactor(am: number, bm: number): massFactor{
 }
 export class Solver{
     positionIterations: number;
-    velocityIterations: number;
+    velocityIterations: number = 1;
     positionCorrectionPercent: number = 0.6;
 
     resolvePositions(contacts: Contact[]){
         contacts.map((c) => this.resolvePosition(c));
     }
+    resolveVelocities(contacts: Contact[]){
+
+        contacts.map((c) => this.applyImpulses(c));
+    }
     
     resolvePosition(c: Contact){
-        /*3     2
-          1/3   1/2
-
-          1/3 + 1/2 = 5/6
-
-          1/3 / 5/6 = 1/3 * 6/5 = 2/5
-          1/2 / 5/6 = 1/2 * 6/5 = 3/5
-        
-        
-        */
        let factor = getMassFactor(c.objectA.inverseMass, c.objectB.inverseMass);
 
-       c.objectA.position.add(vec2.times(c.normal, factor.a * c.depth * this.positionCorrectionPercent));
-       c.objectB.position.subtract(vec2.times(c.normal, factor.b * c.depth * this.positionCorrectionPercent));
+       c.objectA.translate(vec2.times(c.normal, factor.a * c.depth * this.positionCorrectionPercent), false);
+       c.objectB.translate(vec2.times(c.normal, -1 * factor.b * c.depth * this.positionCorrectionPercent), false);
+    }
+
+    applyImpulses(c: Contact){
+        let objectA = c.objectA;
+        let objectB = c.objectB;
+
+        let normal = c.normal;
+        let depth = c.depth;
+
+        let nContacts = c.contactPoints.length;
+        for(let i = 0; i < nContacts; i++){
+            let contactA = objectA.worldToLocalSpace(c.contactPoints[i]);
+            let contactB = objectB.worldToLocalSpace(c.contactPoints[i]);
+
+            let relativeVelocity = vec2.minus(objectA.getVelocityOfPoint(contactA), objectB.getVelocityOfPoint(contactB));
+
+            let dot = vec2.dot(relativeVelocity, normal);
+            if(dot > 0){
+                continue;
+            }
+            
+            let restitution = Math.min(objectA.material.bounciness, objectB.material.bounciness);
+
+            let impulseMagnitude = -(restitution + 1) * dot / (objectA.inverseMass + objectB.inverseMass) / nContacts;
+
+            console.log("\n\nNext ");
+            console.log(dot);
+            console.log(normal);
+            console.log(relativeVelocity);
+            console.log(impulseMagnitude);
+            objectA.applyForce(vec2.times(normal, impulseMagnitude), vec2.zero());
+            objectB.applyForce(vec2.times(normal, -impulseMagnitude), vec2.zero());
+
+        }
     }
 }

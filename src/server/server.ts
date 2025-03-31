@@ -5,6 +5,7 @@ import { Server as socket } from 'socket.io'
 import { Collection, PhysicsObject } from './physics/body.js';
 import { Rotation, vec2 } from './physics/calc.js';
 import { World } from './physics/world.js';
+import { Polygon } from './physics/geometry.js';
 
 console.clear();
 let app = express();
@@ -97,13 +98,18 @@ function newConnection(socket){
     })
 }
 
-let r = PhysicsObject.rectangle(new vec2(0,0), 2, 2, {static: true});
-let c = PhysicsObject.regularPolygon(new vec2(4,0), 1, 7, {velocity: new vec2(-0.01, 0)});
+let r = PhysicsObject.rectangle(new vec2(0,0), 2, 2, {bounciness: 1});
+let c = PhysicsObject.regularPolygon(new vec2(4,0), 1, 7, {velocity: new vec2(-1, 0), bounciness: 1});
 
+let floor = Polygon.rectangle(new vec2(0,5), 10, 1);
+let leftWall = Polygon.rectangle(new vec2(-5,0), 1, 10);
+let rightWall = Polygon.rectangle(new vec2(5,0), 1, 10);
 
+let boundaries = new PhysicsObject(vec2.zero(), Rotation.zero(), [floor, leftWall, rightWall], {static: true, bounciness: 1});
 
-let world = new World(r,c);
+let world = new World(r,c, boundaries);
 
+console.log(boundaries.material.bounciness);
 
 
 
