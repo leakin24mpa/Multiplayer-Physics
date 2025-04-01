@@ -161,31 +161,35 @@ export function CirclePolygonCollision(shapeA: Circle, shapeB: Polygon, objectA:
         
         let contact: vec2;
         let relativeCenter = objectToVertexSpace(localCenter, vertex);
+        
+        
         if(relativeCenter.x > shapeA.radius){
             return false;
         }
         let depth = 0;
-        if(relativeCenter.y > 0){
-            depth = shapeA.radius - relativeCenter.mag();
-            contact = new vec2(0,0);
-            if(depth < 0){
-                return false;
-            }
-        }
-        else{
+        // if(relativeCenter.y > 0){
+        //     depth = shapeA.radius - relativeCenter.mag();
+        //     contact = new vec2(0,0);
+        //     if(depth < 0){
+        //         return false;
+        //     }
+        // }
+        //else{
             depth = shapeA.radius - relativeCenter.x;
             contact = new vec2(0, relativeCenter.y);
-        }
+        //}
+        
         if(vertex.isInternal){
             continue;
         }
         if(depth < minDepth){
             minDepth = depth;
             normal = vertex.normal;
-            bestContact = contact;
+            bestContact = vertexToWorldSpace(contact, objectB, vertex);
         }
 
     }
+
     return {
         shapeA: shapeA,
         shapeB: shapeB,
@@ -193,7 +197,7 @@ export function CirclePolygonCollision(shapeA: Circle, shapeB: Polygon, objectA:
         objectA: objectA,
         objectB: objectB,
 
-        normal: normal.rotateBy(objectB.angle),
+        normal: vec2.rotatedBy(normal, objectB.angle),
         depth: minDepth,
 
         contactPoints: [bestContact]

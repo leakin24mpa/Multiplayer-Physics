@@ -1,6 +1,6 @@
 import { exit } from "process";
 import { PhysicsObject } from "./body.js";
-import { vec2 } from "./calc.js";
+import { Rotation, vec2 } from "./calc.js";
 import { Contact } from "./collision.js";
 
 interface massFactor{
@@ -36,16 +36,20 @@ export class Solver{
         let objectB = c.objectB;
 
         let normal = c.normal;
+        let tangent = vec2.rotatedBy(normal, Rotation.ccw90deg());
         let depth = c.depth;
 
         let nContacts = c.contactPoints.length;
-        let avgContact = vec2.zero();
-        for(let i = 0; i < nContacts; i++){
-            avgContact.add(c.contactPoints[i]);
-        }
-        avgContact.divideBy(nContacts);
-        let avgA = vec2.minus(avgContact, objectA.position);
-        let avgB = vec2.minus(avgContact, objectB.position);
+
+        // let iFactor: massFactor;
+        // let avgContact = vec2.zero();
+        // for(let i = 0; i < nContacts; i++){
+            
+        //     avgContact.add(c.contactPoints[i]);
+        // }
+        // avgContact.divideBy(nContacts);
+        // let avgA = vec2.minus(avgContact, objectA.position);
+        // let avgB = vec2.minus(avgContact, objectB.position);
 
 
         for(let i = 0; i < nContacts; i++){
@@ -60,13 +64,33 @@ export class Solver{
             }
             
             let restitution = Math.min(objectA.material.bounciness, objectB.material.bounciness);
-            let AxN = vec2.cross(avgA, normal);
-            let BxN = vec2.cross(avgB, normal);
+            let AxN = vec2.cross(contactA, normal);
+            let BxN = vec2.cross(contactB, normal);
             let massFactors = nContacts * (objectA.inverseMass + objectB.inverseMass + objectA.inverseInertia * AxN * AxN + objectB.inverseInertia * BxN * BxN);
             let impulseMagnitude = -(restitution + 1) * dot / massFactors;
 
             objectA.applyForce(vec2.times(normal, impulseMagnitude), contactA); 
             objectB.applyForce(vec2.times(normal, -impulseMagnitude), contactB);
+
+            let cof = (objectA.material.friction + objectB.material.friction) / 2;
+            let staticCof = (objectA.material.staticFriction + objectB.material.staticFriction) / 2;
+
+            let tangentVelocity = vec2.dot(relativeVelocity, tangent);
+            let normalForce = impulseMagnitude;
+            let frictionMagnitude: number;
+
+            let staticForce = Math.abs(tangentVelocity / massFactors);
+            if(staticForce < staticCof * normalForce){
+                frictionMagnitude = staticForce * objectA.deltaTime * objectA.deltaTime * objectA.deltaTime;
+            }
+            else{
+                frictionMagnitude = cof * normalForce;
+            }
+            if(tangentVelocity > 0){
+                frictionMagnitude *= -1;
+            }
+            objectA.applyForce(vec2.times(tangent, frictionMagnitude), contactA); 
+            objectB.applyForce(vec2.times(tangent, -frictionMagnitude), contactB);
 
         }
     }

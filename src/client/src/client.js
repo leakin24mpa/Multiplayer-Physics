@@ -99,10 +99,16 @@ function draw(){
     sendUpdate();
     
     background(0);
-    fill(255);
-    noStroke();
+    fill(255,0,0,128);
+
+    stroke(200,100,100);
+    strokeWeight(0.1);
+    strokeJoin(ROUND);
     translate(width/2, height/2);
     scale(50);
+    
+    //rotate(PI/2);
+    scale(1, -1);
     
    
     renderWorld(physicsObjects);

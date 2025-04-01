@@ -75,7 +75,9 @@ function newConnection(socket){
     }
     socket.on('join',userJoin);
     function userJoin(e){
-        
+        let player = PhysicsObject.circle(new vec2(0, -3), 0.3);
+        console.log(e.text + " Joined the game");
+        world.addObjects(player);
     }
     socket.on('update', handleUpdate);
     function handleUpdate(data){
@@ -98,16 +100,18 @@ function newConnection(socket){
     })
 }
 
-let r = PhysicsObject.rectangle(new vec2(0,0), 2, 2, {velocity: new vec2(-1,0), bounciness: 1});
-let c = PhysicsObject.regularPolygon(new vec2(3,0), 1, 7, {angularVelocity: Rotation.new(1), bounciness: 1, angle: Rotation.fromDegrees(180)});
+let r = PhysicsObject.rectangle(new vec2(0,0), 2, 2, {velocity: new vec2(-1,0)});
+let p = PhysicsObject.regularPolygon(new vec2(3,0), 1, 7, {velocity: new vec2(-3,0), angle: Rotation.fromDegrees(180)});
+let c = PhysicsObject.circle(new vec2(0, 3), 1);
 
-let floor = Polygon.rectangle(new vec2(0,5), 10, 1);
+let floor = Polygon.rectangle(new vec2(0,-5), 10, 1);
 let leftWall = Polygon.rectangle(new vec2(-5,0), 1, 10);
 let rightWall = Polygon.rectangle(new vec2(5,0), 1, 10);
+let roof = Polygon.rectangle(new vec2(0,5), 10, 1);
 
-let boundaries = new PhysicsObject(vec2.zero(), [floor, leftWall, rightWall], {static: true, bounciness: 1});
+let boundaries = new PhysicsObject(vec2.zero(), [floor, leftWall, rightWall, roof], {static: true, bounciness: 0.8, angularVelocity: Rotation.new(0.4)});
 
-let world = new World(r, c, boundaries);
+let world = new World(c, p, r, boundaries);
 
 
 
