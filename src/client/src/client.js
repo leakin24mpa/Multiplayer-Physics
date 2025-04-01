@@ -99,9 +99,9 @@ function draw(){
     sendUpdate();
     
     background(0);
-    fill(255,0,0,128);
+    fill(255,100,100,128);
 
-    stroke(200,100,100);
+    stroke(255,100,100);
     strokeWeight(0.1);
     strokeJoin(ROUND);
     translate(width/2, height/2);

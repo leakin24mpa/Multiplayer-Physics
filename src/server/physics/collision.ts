@@ -32,7 +32,7 @@ function invert(r: Contact){
     r.shapeA = shapeB;
 }
 function objectToVertexSpace(v: vec2, vert: Vertex): vec2{
-    return vec2.worldToLocalSpace(v , vert.position, {angle: 0, cos: vert.normal.x, sin: vert.normal.y} as Rotation)
+    return vec2.worldToLocalSpace(v , vert.position, new Rotation(0, vert.normal.x, vert.normal.y))
 }
 function worldToVertexSpace(v: vec2, objectA: PhysicsObject, objectB: PhysicsObject, vert: Vertex): vec2{
     return objectToVertexSpace(objectB.worldToLocalSpace(objectA.localToWorldSpace(v)), vert);
@@ -152,44 +152,56 @@ export function PolygonCollsion(shapeA: Polygon, shapeB: Polygon, objectA: Physi
 }
 export function CirclePolygonCollision(shapeA: Circle, shapeB: Polygon, objectA: PhysicsObject, objectB: PhysicsObject): Contact | false{
     let localCenter = objectB.worldToLocalSpace(objectA.localToWorldSpace(shapeA.COM));
-    let minDepth = Infinity;
-    let normal: vec2;
-    let bestContact: vec2;
 
+    let bestResult: {distance: number, normal: vec2, contact: vec2};
+    bestResult = {distance: Infinity, normal: vec2.zero(), contact: vec2.zero()};
+    
+    let lastPoint = shapeB.vertices[shapeB.vertices.length - 1].position;
     for(let i = 0; i < shapeB.vertices.length; i++){
         let vertex = shapeB.vertices[i];
         
-        let contact: vec2;
         let relativeCenter = objectToVertexSpace(localCenter, vertex);
+        let relativeLast = objectToVertexSpace(lastPoint, vertex);
+        lastPoint = vertex.position;
         
         
-        if(relativeCenter.x > shapeA.radius){
-            return false;
+        let currentResult: {distance: number, normal: vec2, contact: vec2};
+       
+
+        if(relativeCenter.y > 0){
+            currentResult = {
+                distance: relativeCenter.mag(),
+                contact: new vec2(0,0),
+                normal: vec2.asUnitVector(vec2.minus(localCenter, vertex.position))}
+                     
         }
-        let depth = 0;
-        // if(relativeCenter.y > 0){
-        //     depth = shapeA.radius - relativeCenter.mag();
-        //     contact = new vec2(0,0);
-        //     if(depth < 0){
-        //         return false;
-        //     }
-        // }
-        //else{
-            depth = shapeA.radius - relativeCenter.x;
-            contact = new vec2(0, relativeCenter.y);
-        //}
-        
-        if(vertex.isInternal){
-            continue;
-        }
-        if(depth < minDepth){
-            minDepth = depth;
-            normal = vertex.normal;
-            bestContact = vertexToWorldSpace(contact, objectB, vertex);
+        else{
+            if(relativeCenter.x > shapeA.radius){
+                return false;
+            }
+            if(relativeCenter.y < relativeLast.y || vertex.isInternal){
+                continue;
+            }
+            currentResult = {
+                distance: relativeCenter.x,
+                contact: new vec2(0, relativeCenter.y),
+                normal: vertex.normal}
         }
 
+        
+        
+        
+
+        
+        if(Math.abs(currentResult.distance) < Math.abs(bestResult.distance)){
+            bestResult.distance = currentResult.distance;
+            bestResult.normal = currentResult.normal;
+            bestResult.contact = vertexToWorldSpace(currentResult.contact, objectB, vertex);
+        }
     }
-
+    if(bestResult.distance > shapeA.radius){
+        return false;
+    }
     return {
         shapeA: shapeA,
         shapeB: shapeB,
@@ -197,10 +209,10 @@ export function CirclePolygonCollision(shapeA: Circle, shapeB: Polygon, objectA:
         objectA: objectA,
         objectB: objectB,
 
-        normal: vec2.rotatedBy(normal, objectB.angle),
-        depth: minDepth,
+        normal: vec2.rotatedBy(bestResult.normal, objectB.angle),
+        depth: shapeA.radius - bestResult.distance,
 
-        contactPoints: [bestContact]
+        contactPoints: [bestResult.contact]
     }
 }
 export function PolygonCircleCollsion(shapeA: Polygon, shapeB: Circle, objectA: PhysicsObject, objectB: PhysicsObject): Contact | false{
