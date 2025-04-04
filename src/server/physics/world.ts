@@ -5,7 +5,7 @@ import { Solver } from "./solver.js";
 
 export class World{
     root: Collection;
-    gravity: vec2 = new vec2(0,-1);
+    gravity: vec2 = new vec2(0,-9.8);
     
     solver: Solver = new Solver();
 

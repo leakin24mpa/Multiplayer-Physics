@@ -1,8 +1,10 @@
+import { GameManager } from "./game.js";
 import { PhysicsObject } from "./physics/body.js";
 import { Rotation, vec2 } from "./physics/calc.js";
 import { Collision, PolygonCollsion } from "./physics/collision.js";
 import { Circle, Polygon, Shape, ShapeType } from "./physics/geometry.js";
 import { World } from "./physics/world.js";
+import { Player } from "./user.js";
 
 function formatNumber(n: number){
     return Math.round(n * 1000)/1000
@@ -74,12 +76,16 @@ let c = PhysicsObject.regularPolygon(new vec2(4,0), 1, 7, {angularVelocity: Rota
 
 let world = new World(r,c);
 
+let player = new Player("Leo", "awf2afasdfeAAAA");
+let m = new GameManager();
 
-console.log(c.angle);
-world.step(1 / 60);
-console.log(c.angle);
+m.createGame(player, true);
 
+
+
+console.log(m.games);
 //console.log(b1);
+console.log(m.getPublicGameInfo());
 
 
 

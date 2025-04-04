@@ -5,7 +5,8 @@
   "main": "server.js",
   "scripts": {
     "test" : "npx tsx src/server/test.ts",
-    "start": "node dist/server.js",
+    "public": "node dist/server.js public",
+    "local": "node dist/server.js local",
     "build": "tsc"
   },
   "keywords": [

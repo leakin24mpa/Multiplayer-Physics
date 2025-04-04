@@ -6,6 +6,8 @@ import { Collection, PhysicsObject } from './physics/body.js';
 import { Rotation, vec2 } from './physics/calc.js';
 import { World } from './physics/world.js';
 import { Polygon } from './physics/geometry.js';
+import { GameManager } from './game.js';
+import { Player } from './user.js';
 
 console.clear();
 let app = express();
@@ -33,39 +35,27 @@ app.use(express.static('./src/client'));
 console.log('\n\n\n >> Server Started');
 
 
-//get the ip address to connect to
-const networks = networkInterfaces();
-const results = {};
-
-for ( const name of Object.keys(networks)){
-    for (const net of networks[name]) {
-        // Skip over non-IPv4 and internal (i.e. 127.0.0.1) addresses
-        // 'IPv4' is in Node <= 17, from 18 it's a number 4 or 6
-        const familyV4Value = typeof net.family === 'string' ? 'IPv4' : 4
-        //if it's an ipv4 and it's not an internal then keep it
-        if (net.family === familyV4Value && !net.internal) {
-            if (!results[name]) {
-                results[name] = [];
-            }
-            results[name].push(net.address);
-        }
-    }
-}
-//console.log(`\n\n\n >> connect to the server using ip address ${results.en0}:${3000}`);
-
-
 let io = new socket(server);
 
 
 io.sockets.on('connection',newConnection);
 
+let mangager = new GameManager();
 
+mangager.createGame(new Player("Bot", "1234qfw34f"), true);
+mangager.createGame(new Player("Bot", "1234qfw34f"), true);
+mangager.createGame(new Player("Bot", "1234qfw34f"), true);
+mangager.createGame(new Player("Bot", "1234qfw34f"), true);
+mangager.createGame(new Player("Bot", "1234qfw34f"), true);
 
 function newConnection(socket){
     console.log("New Connection to the server");
     console.log("ID: " + socket.id);
+
+    socket.emit('games', mangager.getPublicGameInfo());
+    
     socket.on('say',newChat);
- 
+    
     
     function newChat(data){
         console.log(data.say);
@@ -73,11 +63,13 @@ function newConnection(socket){
         
         socket.broadcast.emit('say',data);
     }
-    socket.on('join',userJoin);
-    function userJoin(e){
-        let player = PhysicsObject.circle(new vec2(0, -3), 0.3);
-        console.log(e.text + " Joined the game");
-        world.addObjects(player);
+    socket.on('join',join);
+    function join(e){
+        console.log("id: " + socket.id + ", Name: " + e.name + ", game# " + e.code);
+        if(mangager.gameExists(e.code)){
+            mangager.addPlayerToGame(new Player(e.name, socket.id), e.code);
+            socket.join(e.code);
+        }
     }
     socket.on('update', handleUpdate);
     function handleUpdate(data){
@@ -89,13 +81,7 @@ function newConnection(socket){
         
     }
     socket.on('disconnect' ,() => {
-        let name;
-        for(let i = 0; i < users.length; i++){
-            if(users[i].id == socket.id){
-                name = users[i].name;
-                users.splice(i,1);
-            }
-        }
+        
         console.log(name + " disconnected")
     })
 }
@@ -127,8 +113,6 @@ function updateGame(dt){
 setInterval(broadcastPosition, 1000 / 60);
 function broadcastPosition(){
     updateGame(1 / 60);
-    //console.log(c.angle);
-    //io.sockets.emit('update', users);
     io.sockets.emit('physics', world.packForExport());
 
 }

@@ -5,26 +5,71 @@
         <link rel="stylesheet" href="styles/main.css"></link>
         <link rel="shortcut icon" href="img/chatNotification.png" type="image/x-icon">
         <script src="/socket.io/socket.io.js"></script>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Alata">
         <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.js"></script>
+        <script src="src/interface.js"></script>
+        <script src="src/render.js"></script>
     </head>
     <body>
-        
-        <div class="controls-wrapper">
-            <ul id="events"></ul>
-            <div class="controls">
-                <div class="chat-wrapper">
-                    <form id="chat-form">
-                        <input id="chat" autocomplete="off" title="chat" placeholder="enter a username..."/>
-                        <button id="say">Join</button>  
-                    </form>
-                    
-                </div>
+        <form id="username-form">
+            <p>Enter a Username</p>
+            <div class = "form-container">
+                <input id="name" class="greytext input" autocomplete="off" title="username-form" spellcheck="false" maxlength=16/>
+                <span id="resizer" class="greytext resizer"></span>
             </div>
-            <p id = 'user'>new user</p>
+        </form>
+        <form id="game code">
+            <p>Game PIN</p>
+            <div id="digits">
+                <input type="number" pattern="[0-9]*" min="0" max="9" maxlength="1"  value="" inputtype="numeric" required>
+                <input type="number" pattern="[0-9]*" min="0" max="9" maxlength="1"  value="" inputtype="numeric" required>
+                <input type="number" pattern="[0-9]*" min="0" max="9" maxlength="1"  value="" inputtype="numeric" required>
+                <input type="number" pattern="[0-9]*" min="0" max="9" maxlength="1"  value="" inputtype="numeric" required>
+                <input type="number" pattern="[0-9]*" min="0" max="9" maxlength="1"  value="" inputtype="numeric" required>
+                <input type="number" pattern="[0-9]*" min="0" max="9" maxlength="1"  value="" inputtype="numeric" required>
+                <script>
+                    let numbers = document.getElementById("digits").children;
+                    for(let i = 0; i < numbers.length; i++){
+                        let n = numbers[i];
+                        n.addEventListener('input', (e) => {
+                            if(n.value.length > 1){
+                                n.value = n.value[1];
+                                
+                            }
+                            if(n.value.length > 0){
+                                if(i < 5){
+                                    numbers[i + 1].focus();
+                                }
+                            }
+                            else{
+                                if(i > 0){
+                                    numbers[i - 1].focus();
+                                }
+                            }
+                        });
+                    }
+                    
+                    
+                </script>
+            </div>
+        </form>
+        <script>
+            let input = document.getElementById("name");
+            let rsz = document.getElementById("resizer");
+            input.focus();
+            input.addEventListener("input", makeInputValid);
+            function makeInputValid(){
+                if(input.value.match(/[^\w-]/)){
+                    this.value = this.value.replace(/[^\w-]/, "");
+                }
+                rsz.innerHTML = input.value;
 
-        </div>
-        <script src="src/render.js"></script>
+            }
+        </script>
+        <button id="refresh-games">R</button>
+        <ul id="public-games"></ul>
+
+        
         <script src="src/client.js"></script>
+
     </body>
 </html>
