@@ -13,4 +13,4 @@
 - `npm run test` runs the [test.ts](https://github.com/leakin24mpa/Multiplayer-Physics/blob/main/src/server/test.ts) file (I use this for testing/debugging)
 - `npm run build` compiles the typescript files to javascript
 - `npm run local` runs the server locally on your computer. You can connect to it at `localhost:3000`
-- `npm run public`runs the server on your computer, but makes it accessible to your local network. Other devices on your WiFi network will be able to connect to the server and join the games`
+- `npm run public`runs the server on your computer, but makes it accessible to your local network. Other devices on your WiFi network will be able to connect to the server and join the games
