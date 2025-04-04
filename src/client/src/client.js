@@ -2,6 +2,19 @@
 var socket;
 socket = io.connect();
 
+
+
+let users = [];
+
+let physicsObjects = [];
+const url = new URL(window.location.href);
+const params = new URLSearchParams(url.search);
+
+
+if(params.get("code")){
+
+}
+
 document.getElementById("game code").addEventListener('submit',(e) => {
     e.preventDefault();
     let numbers = document.getElementById("digits").children;
@@ -39,7 +52,20 @@ socket.on('games', (games) => {
     availableGames = games;
 });
 
+socket.on('update', (data) => {users = data});
 
+socket.on('physics', (data) => {physicsObjects = data});
+
+socket.on('success', (code) => {
+    
+    params.set('code', code); // Add or update a parameter
+    url.search = params.toString();
+    window.history.replaceState({}, '', url.href);
+    
+    document.getElementById("defaultCanvas0").style.visibility = true;
+
+
+})
 
 
 

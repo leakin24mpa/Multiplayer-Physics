@@ -1,5 +1,6 @@
 import { PhysicsObject } from "./physics/body.js";
-import { vec2 } from "./physics/calc.js";
+import { Rotation, vec2 } from "./physics/calc.js";
+import { Polygon } from "./physics/geometry.js";
 import { World } from "./physics/world.js";
 import { Player, User } from "./user.js";
 export interface PlayerInput{
@@ -20,7 +21,17 @@ export class Game{
         this.code = code;
         this.isPublic = isPublic;
         this.players = [];
-        this.world = new World();
+        let r = PhysicsObject.rectangle(new vec2(0,0), 2, 2, {velocity: new vec2(-1,0)});
+        let p = PhysicsObject.regularPolygon(new vec2(3,0), 1, 7, {velocity: new vec2(-3,0), angle: Rotation.fromDegrees(180)});
+        let c = PhysicsObject.circle(new vec2(0, 3), 1,{bounciness: 1});
+        
+        let floor = Polygon.rectangle(new vec2(0,-5), 10, 1);
+        let leftWall = Polygon.rectangle(new vec2(-5,0), 1, 10);
+        let rightWall = Polygon.rectangle(new vec2(5,0), 1, 10);
+        let roof = Polygon.rectangle(new vec2(0,5), 10, 1);
+        
+        let boundaries = new PhysicsObject(vec2.zero(), [floor, leftWall, rightWall, roof], {static: true, bounciness: 0.8, angularVelocity: Rotation.new(0.4)});
+        this.world = new World(r,p,c,boundaries);
     }
     addPlayers(...players: Player[]){
         this.players.push(...players);
@@ -31,6 +42,9 @@ export class Game{
             return obj;
         })));
     }
+    update(dt: number){
+        this.world.step(dt);
+    }
     removePlayer(id: string){
         for(let i = this.players.length; i >=0; i--){
             if(this.players[i].id == id){
@@ -38,6 +52,7 @@ export class Game{
             }
         }
     }
+
 }
 export class GameManager{
     games = {};
@@ -88,6 +103,14 @@ export class GameManager{
     }
     gameExists(code: string){
         return code in this.games;
+    }
+    getGameData(code: string){
+        return this.games[code].world.packForExport();
+    }
+    updateAll(dt: number){
+        for(var code in this.games){
+            this.games[code].update(dt);
+        }
     }
 
 }

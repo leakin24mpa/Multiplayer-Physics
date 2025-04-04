@@ -43,10 +43,7 @@ io.sockets.on('connection',newConnection);
 let mangager = new GameManager();
 
 mangager.createGame(new Player("Bot", "1234qfw34f"), true);
-mangager.createGame(new Player("Bot", "1234qfw34f"), true);
-mangager.createGame(new Player("Bot", "1234qfw34f"), true);
-mangager.createGame(new Player("Bot", "1234qfw34f"), true);
-mangager.createGame(new Player("Bot", "1234qfw34f"), true);
+
 
 function newConnection(socket){
     console.log("New Connection to the server");
@@ -67,8 +64,12 @@ function newConnection(socket){
     function join(e){
         console.log("id: " + socket.id + ", Name: " + e.name + ", game# " + e.code);
         if(mangager.gameExists(e.code)){
+            socket.emit('success', e.code);
             mangager.addPlayerToGame(new Player(e.name, socket.id), e.code);
             socket.join(e.code);
+        }
+        else{
+            socket.emit('failure');
         }
     }
     socket.on('update', handleUpdate);
@@ -82,38 +83,21 @@ function newConnection(socket){
     }
     socket.on('disconnect' ,() => {
         
-        console.log(name + " disconnected")
+        console.log(socket.id + " disconnected");
     })
 }
 
-let r = PhysicsObject.rectangle(new vec2(0,0), 2, 2, {velocity: new vec2(-1,0)});
-let p = PhysicsObject.regularPolygon(new vec2(3,0), 1, 7, {velocity: new vec2(-3,0), angle: Rotation.fromDegrees(180)});
-let c = PhysicsObject.circle(new vec2(0, 3), 1,{bounciness: 1});
-
-let floor = Polygon.rectangle(new vec2(0,-5), 10, 1);
-let leftWall = Polygon.rectangle(new vec2(-5,0), 1, 10);
-let rightWall = Polygon.rectangle(new vec2(5,0), 1, 10);
-let roof = Polygon.rectangle(new vec2(0,5), 10, 1);
-
-let boundaries = new PhysicsObject(vec2.zero(), [floor, leftWall, rightWall, roof], {static: true, bounciness: 0.8, angularVelocity: Rotation.new(0.4)});
-
-//let boundaries = PhysicsObject.rectangle(new vec2(-3,-5), 5, 1, {static: true, bounciness: 1});
-//let boundaries = PhysicsObject.regularPolygon(new vec2(0,-5), 1, 3, {static: true, bounciness: 1});
-let world = new World(c, p, r, boundaries);
 
 
 
 
-function updateGame(dt){
-    world.step(dt);
-    
-    
-        
-}
+
+
 setInterval(broadcastPosition, 1000 / 60);
 function broadcastPosition(){
-    updateGame(1 / 60);
-    io.sockets.emit('physics', world.packForExport());
-
+    mangager.updateAll(1/60);
+    for(var code in mangager.games){
+        io.sockets.to(code).emit('physics', mangager.getGameData(code));
+    }
 }
 

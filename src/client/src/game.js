@@ -1,10 +1,5 @@
-socket.on('update', (data) => {users = data});
 
-socket.on('physics', (data) => {physicsObjects = data});
 
-let users = [];
-
-let physicsObjects = [];
 
 function sendUpdate(){
     //let data = {x: playerX, y: playerY};
@@ -21,6 +16,7 @@ function sendUpdate(){
 function setup(){
     createCanvas(800,800);
     rectMode(CENTER);
+    document.getElementById("defaultCanvas0").style.visibility = false;
 }
 
 
